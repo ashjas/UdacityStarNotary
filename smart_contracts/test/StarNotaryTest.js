@@ -8,23 +8,26 @@ contract('StarNotary', accounts => {
     
     describe('can create a star', () => { 
         it('can create a star and get its name', async function () { 
+            let info = ['awesome star!','story','dec_121.874','mag_245.978','ra_032.155'];
+            await this.contract.createStar('awesome star!', 'story', '121.874', '245.978','032.155', {from: accounts[0]})
             
-            await this.contract.createStar('awesome star!', 1, {from: accounts[0]})
-
-            assert.equal(await this.contract.tokenIdToStarInfo(1), 'awesome star!')
+            assert.deepEqual(await this.contract.tokenIdToStarInfo(0), info)
+            
+            // create second star with same data, should fail.
+            //await this.contract.createStar('awesome star!', 'story', 'dec_', 'mag_','cen_', 2 , {from: accounts[0]})
+            //expect(await this.contract.createStar('awesome star!', 'story', 'dec_', 'mag_','cen_', 2 , {from: accounts[0]}) ).toThrow();
         })
     })
 
     describe('buying and selling stars', () => { 
         let user1 = accounts[1]
         let user2 = accounts[2]
-        let randomMaliciousUser = accounts[3]
         
-        let starId = 1
+        let starId = 0
         let starPrice = web3.toWei(.01, "ether")
 
         beforeEach(async function () { 
-            await this.contract.createStar('awesome star!', starId, {from: user1})    
+            await this.contract.createStar('awesome star!', 'story', 'dec_', 'mag_','cen_', {from: user1})    
         })
 
         it('user1 can put up their star for sale', async function () { 
@@ -55,3 +58,14 @@ contract('StarNotary', accounts => {
         })
     })
 })
+
+var expectThrow = async function(promise) { 
+    try { 
+        await promise
+    } catch (error) { 
+        assert.exists(error)
+        return 
+    }
+
+    assert.fail('expected an error, but none was found')
+}
